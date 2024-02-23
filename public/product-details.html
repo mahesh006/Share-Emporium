@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Product Details</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"
+    />
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+      }
+      .navbar {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        box-sizing: border-box; /* Ensures padding is included in the width */
+      }
+      .navbar h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px; /* Increased gap between username and logout link */
+      }
+      .user-info span {
+        font-size: 16px;
+      }
+      .user-info a {
+        display: inline-block;
+        background-color: #f8f9fa;
+        color: #007bff;
+        text-decoration: none;
+        padding: 5px 15px;
+        border-radius: 5px;
+        transition: background-color 0.3s, color 0.3s;
+        font-weight: bold;
+      }
+      .user-info span a {
+        display: inline-block;
+        color: white;
+        font-weight: bold;
+        background-color: #007bff;
+      }
+      .user-info a:hover {
+        background-color: #e2e6ea;
+        color: #0056b3;
+      }
+
+      #productDetailsContainer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        width: 100%;
+        max-width: 1200px;
+        margin-top: 20px;
+        gap: 20px; /* Added gap between image and details */
+      }
+      #productDetailsContainer img {
+        width: 40%;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .details {
+        width: calc(60% - 10px); /* Adjusted width for balance */
+        padding: 20px;
+        background-color: #f5f5f5;
+
+        display: flex;
+        flex-direction: column;
+        gap: 8px; /* Consistent spacing between elements */
+      }
+      .details h1,
+      .details p {
+        margin: 10px 0; /* Added margin for spacing */
+      }
+      #map {
+        height: 400px;
+        width: 100%;
+        max-width: 1200px;
+        margin-top: 20px;
+      }
+      /* Additional CSS for Reviews Display */
+      .review {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .review p {
+        margin: 5px 0;
+      }
+
+      /* Styling for the username */
+      .review .username {
+        font-weight: bold;
+      }
+
+      /* Dynamic stars display for reviews */
+      .review .stars {
+        display: flex;
+        align-items: center;
+      }
+
+      .review .star {
+        color: #ffdd00; /* Gold color for stars */
+        margin-right: 5px;
+      }
+
+      /* Style for review text */
+      .review .review-text {
+        color: #333;
+        font-style: italic;
+      }
+
+      /* Ensuring the star ratings in the submit form align with displayed reviews */
+      .star-rating label {
+        color: #ffdd00; /* Adjust if needed to match star display */
+      }
+
+      /* Enhancement for submit review form */
+      #submitReviewContainer form {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+        margin-top: 20px;
+      }
+
+      #submitReviewContainer button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      #submitReviewContainer button:hover {
+        background-color: #0056b3;
+      }
+
+      #contactOwnerModal {
+        position: relative;
+        background-color: #fefefe;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 90%;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: none;
+      }
+      .modal-content {
+        padding: 0;
+      }
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+      }
+      .close:hover,
+      .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .star-rating {
+        direction: rtl;
+        display: inline-block;
+        padding: 20px;
+      }
+      .star-rating input[type="radio"] {
+        display: none;
+      }
+      .star-rating label {
+        color: #ccc;
+        font-size: 24px;
+        padding: 0;
+        cursor: pointer;
+      }
+      .star-rating label:hover,
+      .star-rating label:hover ~ label,
+      .star-rating input[type="radio"]:checked ~ label {
+        color: #f5a623;
+      }
+      #reviewsContainer {
+        width: 100%;
+        max-width: 1200px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 20px;
+      }
+
+      .gold-stars {
+        color: gold;
+        font-size: 1.6rem;
+      }
+      .review {
+        background-color: #ffffff; /* White background */
+        border: 1px solid #e0e0e0; /* Light gray border */
+        border-radius: 5px; /* Rounded corners */
+        padding: 15px; /* Padding for spacing */
+        margin-bottom: 15px; /* Margin between each review */
+        width: 70%;
+      }
+
+      .review p {
+        margin: 5px 0; /* Margin for paragraphs within the review */
+      }
+
+      .review p#username {
+        font-weight: bold; /* Bold username */
+      }
+
+      .review p#stars {
+        color: #f5a623; /* Star color */
+      }
+
+      .review p#review-text {
+        font-style: italic; /* Italicize review text */
+      }
+
+      #submitReviewContainer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        margin-top: 20px;
+      }
+      #reviewForm {
+        width: 100%;
+        max-width: 600px;
+      }
+      #reviewForm textarea,
+      #reviewForm button {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      #reviewForm button {
+        background-color: #4caf50; /* Green */
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      #reviewForm button:hover {
+        background-color: #45a049;
+      }
+      #contactOwnerButton {
+        background-color: hotpink; /* Bootstrap primary blue */
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+        font-weight: bold;
+      }
+      #contactOwnerButton:hover {
+        background-color: deeppink; /* Darker blue on hover */
+      }
+      #contactOwnerModal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+        animation: fadeIn 0.5s;
+      }
+      .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 50%;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        animation: slideIn 0.5s;
+      }
+      .close {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+      }
+      .close:hover,
+      .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      input[type="text"],
+      textarea {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      button {
+        width: 100%;
+        background-color: #4caf50;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes slideIn {
+        from {
+          top: -300px;
+          opacity: 0;
+        }
+        to {
+          top: 15%;
+          opacity: 1;
+        }
+      }
+
+      @media (max-width: 768px) {
+        #productDetailsContainer {
+          flex-direction: column;
+          align-items: center;
+        }
+        #productDetailsContainer img,
+        .details {
+          width: 100%;
+        }
+        .details {
+          padding: 20px;
+        }
+        #contactOwnerModal {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <h1>Details</h1>
+      <div class="user-info" id="userInfoContainer">
+        <!-- User info will be dynamically inserted here -->
+      </div>
+    </div>
+    <div id="productDetailsContainer">
+      <img
+        id="productImage"
+        src=""
+        alt="Product Image"
+        style="max-width: 100%; max-height: 100%"
+      />
+      <div class="details">
+        <h1 id="productName">Name</h1>
+        <p id="productDescription"><b>Description:</b></p>
+        <p id="productCategory"><b>Category:</b></p>
+        <p id="productItemType"><b>Item Type:</b></p>
+
+        <div id="contactOwnerModal">
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <div
+              id="messageBox"
+              style="
+                display: none;
+                padding: 10px;
+                border-radius: 5px;
+                margin-bottom: 15px;
+              "
+            ></div>
+
+            <h2>Contact Owner</h2>
+            <label for="description">Description:</label>
+            <br />
+            <textarea id="description" name="description"></textarea>
+            <br />
+            <label for="contactNumber">Contact Number:</label>
+            <br />
+            <input type="text" id="contactNumber" name="contactNumber" />
+            <br />
+            <br />
+            <button id="submitContact">Send</button>
+          </div>
+        </div>
+        <button id="contactOwnerButton">Contact Owner</button>
+      </div>
+    </div>
+    <h2>Location</h2>
+
+    <div id="map">
+      <div
+        id="loading"
+        style="
+          display: none;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          z-index: 1000;
+          background: white;
+          padding: 10px;
+          border-radius: 5px;
+        "
+      >
+        Calculating route...
+      </div>
+    </div>
+
+    <div id="reviewsContainer">
+      <div class="review">
+        <p id="username"></p>
+        <p id="stars"></p>
+        <p id="review-text"></p>
+      </div>
+    </div>
+    <div id="submitReviewContainer">
+      <h2>Submit a Review</h2>
+      <form id="reviewForm">
+        <div class="star-rating">
+          <input id="star5" name="rating" type="radio" value="5" />
+          <label for="star5">&#9733;</label>
+          <input id="star4" name="rating" type="radio" value="4" />
+          <label for="star4">&#9733;</label>
+          <input id="star3" name="rating" type="radio" value="3" />
+          <label for="star3">&#9733;</label>
+          <input id="star2" name="rating" type="radio" value="2" />
+          <label for="star2">&#9733;</label>
+          <input id="star1" name="rating" type="radio" value="1" />
+          <label for="star1">&#9733;</label>
+        </div>
+        <br />
+
+        <textarea id="reviewText" name="reviewText" required></textarea>
+        <br />
+        <button type="submit">Submit Review</button>
+      </form>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <script src="product-details.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Your existing JavaScript code from product-details.js
+
+        // Additional script to handle the Contact Owner button and modal
+        const contactOwnerButton =
+          document.getElementById("contactOwnerButton");
+        const contactOwnerModal = document.getElementById("contactOwnerModal");
+        const close = document.getElementsByClassName("close")[0];
+
+        contactOwnerButton.onclick = function () {
+          contactOwnerModal.style.display = "block";
+        };
+
+        close.onclick = function () {
+          contactOwnerModal.style.display = "none";
+        };
+
+        window.onclick = function (event) {
+          if (event.target === contactOwnerModal) {
+            contactOwnerModal.style.display = "none";
+          }
+        };
+
+        document.getElementById("submitContact").onclick = function () {
+          const description = document.getElementById("description").value;
+          const contactNumber = document.getElementById("contactNumber").value;
+          // Implement the submit logic, e.g., send data to the server
+          alert(
+            "Description: " + description + "\nContact Number: " + contactNumber
+          );
+          // Close modal
+          contactOwnerModal.style.display = "none";
+        };
+      });
+    </script>
+  </body>
+</html>

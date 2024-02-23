@@ -1,0 +1,22 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+#userForm {
+  margin: 20px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+}
+
+input,
+button {
+  margin: 5px 0;
+  padding: 10px;
+}
+
+button {
+  cursor: pointer;
+}

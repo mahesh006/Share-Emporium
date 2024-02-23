@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home - Product Listings</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    />
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+      }
+      .navbar {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .navbar h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .navbar h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px; /* Increased gap between username and logout link */
+      }
+      .user-info span {
+        font-size: 16px;
+      }
+      .user-info span a {
+        display: inline-block;
+        color: white;
+        font-weight: bold;
+        background-color: #007bff;
+      }
+      .user-info a {
+        display: inline-block;
+        background-color: #f8f9fa;
+        color: #007bff;
+        text-decoration: none;
+        padding: 5px 15px;
+        border-radius: 5px;
+        transition: background-color 0.3s, color 0.3s;
+        font-weight: bold;
+      }
+      .user-info a:hover {
+        background-color: #e2e6ea;
+        color: #0056b3;
+      }
+
+      #searchContainer {
+        width: 20%;
+        padding: 20px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      #productsContainer {
+        width: 80%;
+        padding: 20px;
+        box-sizing: border-box;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+      }
+      .product {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .product img {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+        margin-bottom: 10px;
+      }
+      .product h2 {
+        font-size: 18px;
+        margin: 10px 0;
+      }
+      .product p {
+        font-size: 14px;
+        color: #666;
+        margin: 5px 0;
+      }
+      .product .map-container {
+        width: 100%;
+        height: 200px;
+        margin-top: 15px;
+        overflow: hidden;
+      }
+      .leaflet-container {
+        height: 100%;
+        width: 100%;
+      }
+      a {
+        text-decoration: none;
+        font-weight: bold;
+        color: black;
+      }
+      input,
+      select,
+      button {
+        padding: 10px;
+        width: 100%;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      button {
+        background-color: hotpink;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      button:hover {
+        background-color: deeppink;
+      }
+      select option {
+        background-color: #eee; /* Light grey background */
+        color: #444; /* Darker text color */
+        padding: 10px; /* Add padding for better readability */
+        margin: 2px 0; /* Add a slight margin between options */
+        border-bottom: 1px solid #ddd; /* Add a border to separate options */
+        font-weight: bold; /* Make the text bold */
+        font-family: "Arial", sans-serif; /* Specify font family */
+        font-size: 14px; /* Adjust font size */
+        text-shadow: 1px 1px 0px #fff; /* Add subtle text shadow for depth */
+        cursor: pointer; /* Change cursor to pointer on hover */
+        transition: background-color 0.3s ease; /* Smooth background color transition on hover */
+      }
+      select option:hover {
+        background-color: #d3d3d3; /* Lighten background color on hover */
+      }
+      @media (max-width: 768px) {
+        body {
+          flex-direction: column;
+        }
+        #searchContainer,
+        #productsContainer {
+          width: 100%;
+        }
+      }
+      .full-star {
+        color: gold; /* Gold color for the star */
+        text-shadow: 0 0 1px black; /* Minimal shadow for a subtle border effect */
+      }
+      .fas,
+      .far {
+        margin-right: 2px; /* Adjust as needed for alignment */
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.15.1/css/all.css"
+    />
+  </head>
+  <body>
+    <div class="navbar">
+      <h1>Home</h1>
+      <div class="user-info" id="userInfoContainer">
+        <!-- User info will be dynamically inserted here -->
+      </div>
+    </div>
+    <div style="display: flex">
+      <div id="searchContainer">
+        <input type="text" id="searchInput" placeholder="Search products..." />
+        <select id="filterItemType">
+          <option value="">Select Item Type</option>
+          <option value="requests">Requests</option>
+          <option value="offers for sharing">Offers for Sharing</option>
+          <option value="gifting">Gifting</option>
+          <option value="other">Other</option>
+        </select>
+        <select id="filterCategory">
+          <option value="">Select Category</option>
+          <option value="Furniture">Furniture</option>
+          <option value="Electronic devices">Electronic Devices</option>
+          <option value="Cars">Cars</option>
+          <option value="Games">Games</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Sports">Sports</option>
+          <option value="Movies & Music">Movies & Music</option>
+          <option value="Books">Books</option>
+          <option value="Other">Other</option>
+        </select>
+        <select id="filterCountry">
+          <option value="">Select Country</option>
+          <option value="United States of America">
+            United States of America
+          </option>
+          <option value="Canada">Canada</option>
+          <option value="United Kingdom">United Kingdom</option>
+          <option value="Australia">Australia</option>
+          <option value="India">India</option>
+          <option value="Brazil">Brazil</option>
+          <option value="China">China</option>
+          <option value="France">France</option>
+          <option value="Germany">Germany</option>
+          <option value="Italy">Italy</option>
+          <option value="Japan">Japan</option>
+          <option value="Mexico">Mexico</option>
+          <option value="Russia">Russia</option>
+          <option value="South Africa">South Africa</option>
+          <option value="South Korea">South Korea</option>
+          <option value="Spain">Spain</option>
+          <option value="Sweden">Sweden</option>
+          <option value="Switzerland">Switzerland</option>
+          <option value="Turkey">Turkey</option>
+          <option value="Argentina">Argentina</option>
+          <option value="Belgium">Belgium</option>
+          <option value="Saudi Arabia">Saudi Arabia</option>
+          <option value="Netherlands">Netherlands</option>
+          <option value="Norway">Norway</option>
+          <option value="New Zealand">New Zealand</option>
+        </select>
+        <button onclick="searchAndFilterProducts()">Search</button>
+        <button id="nearbyItemsBtn">Nearby Items</button>
+      </div>
+      <div id="productsContainer">
+        <!-- Products will be dynamically added here -->
+      </div>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="home.js"></script>
+  </body>
+</html>

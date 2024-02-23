@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Products</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+      }
+      .navbar {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .navbar h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .navbar h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px; /* Increased gap between username and logout link */
+      }
+      .user-info span {
+        font-size: 16px;
+      }
+      .user-info span a {
+        display: inline-block;
+        color: white;
+        font-weight: bold;
+        background-color: #007bff;
+      }
+      .user-info a {
+        display: inline-block;
+        background-color: #f8f9fa;
+        color: #007bff;
+        text-decoration: none;
+        padding: 5px 15px;
+        border-radius: 5px;
+        transition: background-color 0.3s, color 0.3s;
+        font-weight: bold;
+      }
+      .user-info a:hover {
+        background-color: #e2e6ea;
+        color: #0056b3;
+      }
+
+      .center-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        min-height: calc(
+          100vh - 60px
+        ); /* Adjust this value based on your navbar's height */
+        width: 100%;
+      }
+
+      #productForm {
+        background-color: #fff;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 480px;
+      }
+
+      input[type="text"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 12px 15px;
+        margin-bottom: 16px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+        font-size: 14px;
+      }
+      .file-upload-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        cursor: pointer;
+        background-color: hotpink;
+        color: #fff;
+        padding: 16px 0.1px;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 26px;
+        font-weight: bold;
+      }
+
+      .file-upload-input {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .file-upload-wrapper::before {
+        content: attr(data-text) "Image Upload";
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 14px;
+        pointer-events: none;
+        transition: all 0.3s;
+        border-radius: 8px;
+      }
+
+      #file-upload-filename {
+        position: absolute;
+        bottom: -25px; /* Adjust as necessary */
+        left: 0;
+        width: 100%;
+        text-align: center;
+        color: #333;
+        font-size: 14px;
+      }
+
+      .location-field-wrapper {
+        display: flex;
+        align-items: center;
+        position: relative;
+      }
+      .location-icon {
+        position: absolute;
+        right: 10px;
+        cursor: pointer;
+        color: #e034ca;
+        font-size: 20px;
+        margin-bottom: 3%;
+      }
+      textarea {
+        height: 120px;
+        resize: none;
+      }
+      button {
+        background-color: hotpink;
+        color: white;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        width: 100%;
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+      }
+      button:hover {
+        background-color: deeppink;
+      }
+      @media (max-width: 768px) {
+        body {
+          padding: 20px;
+        }
+        #productForm {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <h1>Add Products</h1>
+      <div class="user-info" id="userInfoContainer">
+        <!-- User info will be dynamically inserted here -->
+      </div>
+    </div>
+    <div class="center-container">
+      <div id="message" style="margin: 20px 0; color: green"></div>
+
+      <div id="productForm">
+        <input type="text" id="productName" placeholder="Product Name" />
+        <textarea
+          id="productDescription"
+          placeholder="Product Description"
+        ></textarea>
+        <select id="productCategory">
+          <option value="">Select Category</option>
+          <option value="Furniture">Furniture</option>
+          <option value="Electronic devices">Electronic devices</option>
+          <option value="Cars">Cars</option>
+          <option value="Games">Games</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Sports">Sports</option>
+          <option value="Movies & Music">Movies & Music</option>
+          <option value="Books">Books</option>
+          <option value="Other">Other</option>
+        </select>
+        <select id="itemType">
+          <option value="">Select Item Type</option>
+          <option value="requests">requests</option>
+          <option value="offers for sharing">offers for sharing</option>
+          <option value="gifting">gifting</option>
+          <option value="other">other</option>
+        </select>
+        <div class="file-upload-wrapper">
+          <input type="file" id="productImage" class="file-upload-input" />
+          <span id="file-upload-filename">No Image Chosen</span>
+        </div>
+
+        <input type="text" id="phoneNumber" placeholder="Phone Number" />
+        <select id="country">
+          <option value="United States of America">
+            United States of America
+          </option>
+          <option value="Canada">Canada</option>
+          <option value="United Kingdom">United Kingdom</option>
+          <option value="Australia">Australia</option>
+          <option value="India">India</option>
+          <option value="Brazil">Brazil</option>
+          <option value="China">China</option>
+          <option value="France">France</option>
+          <option value="Germany">Germany</option>
+          <option value="Italy">Italy</option>
+          <option value="Japan">Japan</option>
+          <option value="Mexico">Mexico</option>
+          <option value="Russia">Russia</option>
+          <option value="South Africa">South Africa</option>
+          <option value="South Korea">South Korea</option>
+          <option value="Spain">Spain</option>
+          <option value="Sweden">Sweden</option>
+          <option value="Switzerland">Switzerland</option>
+          <option value="Turkey">Turkey</option>
+          <option value="Argentina">Argentina</option>
+          <option value="Belgium">Belgium</option>
+          <option value="Saudi Arabia">Saudi Arabia</option>
+          <option value="Netherlands">Netherlands</option>
+          <option value="Norway">Norway</option>
+          <option value="New Zealand">New Zealand</option>
+        </select>
+        <div class="location-field-wrapper">
+          <input
+            type="text"
+            id="productLocation"
+            placeholder="Location (optional)"
+          />
+          <i
+            class="fas fa-map-marker-alt location-icon"
+            onclick="getLocation()"
+          ></i>
+        </div>
+        <button onclick="addProduct()">Add Product</button>
+      </div>
+    </div>
+    <script src="product.js"></script>
+  </body>
+</html>
